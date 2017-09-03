@@ -46,6 +46,14 @@ const config = {
     storageBucket: "<BUCKET>.appspot.com",
 };
 firebase.initializeApp(config);
+const messaging = firebase.messaging();
+messaging.setBackgroundMessageHandler(payload => {
+    const title = "Notification: WiSoft Lab.";
+    const options = {
+        body: payload.data.status
+    };
+    return self.registration.showNotification(title, options);
+});
 
 app.listen(11011);
 
