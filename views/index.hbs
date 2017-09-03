@@ -1,2 +1,45 @@
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
+<p>
+<div id="log"></div></p>
+
+<script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
+<script src="//code.jquery.com/jquery.min.js"></script>
+<script>
+    function put(token) {
+        $.ajax({
+            url: "/add",
+            type: "put",
+            dataType: 'json',
+            data: {
+                token : token
+            }, error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    const messaging = firebase.messaging();
+    messaging.requestPermission()
+            .then(() => {
+                console.log('Have permission');
+                return messaging.getToken();
+            })
+            .then(token => {
+                log(`Received FCM token: ${token}`);
+                put(token);
+            })
+            .catch((err) => {
+                console.log('Error Occured: ' + err)
+            });
+
+    messaging.onMessage(payload => {
+        console.log('onMessage: ', payload);
+    });
+
+    const $log = $('#log');
+
+    function log(message) {
+        $log.append(`<br/>${message}`);
+    }
+</script>
