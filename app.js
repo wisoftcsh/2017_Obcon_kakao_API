@@ -1,11 +1,13 @@
 const express = require('express');
 const path = require('path');
+const https = require('https');
+const fs = require('fs');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const firebase = require('firebase');
 const index = require('./routes/index');
+const push = require('./service/push');
 
 const app = express();
 // view engine setup
@@ -39,22 +41,13 @@ app.use(function(err, req, res, next) {
     res.render('error');
 });
 
-const config = {
-    apiKey: "<API_KEY>",
-    authDomain: "<PROJECT_ID>.firebaseapp.com",
-    databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
-    storageBucket: "<BUCKET>.appspot.com",
+const options = {
+    key: fs.readFileSync('./private.key'),
+    cert: fs.readFileSync('./publickey.cer')
 };
-firebase.initializeApp(config);
-const messaging = firebase.messaging();
-messaging.setBackgroundMessageHandler(payload => {
-    const title = "Notification: WiSoft Lab.";
-    const options = {
-        body: payload.data.status
-    };
-    return self.registration.showNotification(title, options);
-});
 
-app.listen(11011);
+https.createServer(options, app).listen(11011);
+// app.listen(11011);
+push.webpush();
 
 module.exports = app;

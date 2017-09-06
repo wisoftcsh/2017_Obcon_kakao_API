@@ -6,8 +6,20 @@ let connection;
 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/', function (req, res, next) {
+    res.render('index', {title: 'Express'});
+});
+
+router.put('/add', (req, res) => {
+    MySQL.createConnection(MySQLConfig)
+        .then((conn) => {
+            connection = conn;
+            connection.query('insert into token(token) values (?)', req.body.token, (err, result) => {
+                console.log(err);
+                console.log(result);
+                connection.end();
+            })
+        });
 });
 
 router.get('/value', (req, res) => {

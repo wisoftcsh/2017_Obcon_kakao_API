@@ -6,6 +6,11 @@
 <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
 <script src="//code.jquery.com/jquery.min.js"></script>
 <script>
+    const config = {
+        // add firebase info
+    };
+    firebase.initializeApp(config);
+
     function put(token) {
         $.ajax({
             url: "/add",
@@ -22,17 +27,20 @@
     const messaging = firebase.messaging();
     messaging.requestPermission()
             .then(() => {
+                return navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            })
+            .then((registration) => {
+                messaging.useServiceWorker(registration);
                 console.log('Have permission');
                 return messaging.getToken();
             })
             .then(token => {
                 log(`Received FCM token: ${token}`);
-                put(token);
+                put(token); // 최초에 한번만 등록
             })
             .catch((err) => {
                 console.log('Error Occured: ' + err)
             });
-
     messaging.onMessage(payload => {
         console.log('onMessage: ', payload);
     });
